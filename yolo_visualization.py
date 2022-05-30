@@ -1,5 +1,5 @@
 # coding=utf-8
-import cv2
+import cv2.cv2 as cv2
 import numpy as np
 import onnxruntime
 import torch
@@ -14,23 +14,19 @@ class YOLOV5_ONNX(object):
         print(onnxruntime.get_device())
         self.input_name=self.get_input_name()
         self.output_name=self.get_output_name()
-        self.classes = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
-                        'traffic light',
-                        'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep',
-                        'cow',
-                        'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase',
-                        'frisbee',
-                        'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard',
-                        'surfboard',
-                        'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana',
-                        'apple',
-                        'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair',
-                        'couch',
-                        'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard',
-                        'cell phone',
-                        'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
-                        'teddy bear',
-                        'hair drier', 'toothbrush']
+        self.classes=['Worker',
+'Tower crane',
+'Hanging hook',
+'Vehicle crane',
+'Roller',
+'Bulldozer',
+'Excavator',
+'Truck',
+'Loader',
+'Pump truck',
+'Concrete transport Mixer',
+'Pile driver',
+'Other vehicle']
     def get_input_name(self):
         '''获取输入节点名称'''
         input_name=[]
@@ -177,7 +173,7 @@ class YOLOV5_ONNX(object):
         # 超参数设置
         img_size=(640,640) #图片缩放大小
         # 读取图片
-        src_img=img_path
+        src_img=cv2.imread(img_path)
         start=time.time()
         src_size=src_img.shape[:2]
 
@@ -219,7 +215,7 @@ class YOLOV5_ONNX(object):
                 det[:, :4] = self.scale_coords(img_shape, det[:, :4],src_size).round()
         print(time.time()-start)
         if det is not None and len(det):
-            return self.draw(src_img, det)
+            self.draw(src_img, det)
 
 
 
@@ -241,21 +237,18 @@ class YOLOV5_ONNX(object):
         colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.classes))]
         for *xyxy, conf, cls in boxinfo:
             label = '%s %.2f' % (self.classes[int(cls)], conf)
-
             # print('xyxy: ', xyxy)
             self.plot_one_box(xyxy, img, label=label, color=colors[int(cls)], line_thickness=1)
 
         # cv2.namedWindow("dst",0)
-        # cv2.imshow("dst", img)
-        # cv2.imwrite("res1.jpg",img)
+        # cv2.cvShowImage("dst", img)
+        cv2.imwrite("test_result_image//0023418ed-4.jpg",img)
+        print("xieru")
         # cv2.waitKey(0)
         # cv2.imencode('.jpg', img)[1].tofile(os.path.join(dst, id + ".jpg"))
-        img = np.array(img)
-        img = img.astype(np.uint8)
-        return img
+        return 0
 
 
 if __name__=="__main__":
-    model=YOLOV5_ONNX(onnx_path="yolov5s.onnx")
-    x=model.infer(img_path="t1.jpg")
-    cv2.imwrite("t1ed.jpg",x)
+    model=YOLOV5_ONNX(onnx_path="runs//prune_0.42_keep_0.01_8x_0519_exp_sparsity_last.onnx")
+    model.infer(img_path="test_image//0023418.jpg")

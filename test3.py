@@ -167,12 +167,12 @@ class YOLOV5_ONNX(object):
         '''执行前向操作预测输出'''
         # 超参数设置
         img_size=(640,640) #图片缩放大小
+        src_img=cv2.imread(img_path)
+        src_img = src_img.astype(np.float32)
         # 读取图片
-        src_img=img_path[0,:,:,:]
         # print(src_img.shape)
         start=time.time()
         src_size=src_img.shape[:2]
-        src_img = src_img[ ::-1,:, :].transpose((1, 2, 0))
         # print(src_img.shape)
         img=cv2.resize(src_img, img_size)
         print(img.shape)
@@ -225,11 +225,11 @@ class YOLOV5_ONNX(object):
             label = '%s %.2f' % (self.classes[int(cls)], conf)
             # print('xyxy: ', xyxy)
             self.plot_one_box(xyxy, img, label=label, color=colors[int(cls)], line_thickness=1)
-
+        #
         # cv2.namedWindow("dst",0)
         # cv2.imshow("dst", img)
-        # cv2.imwrite("res1.jpg",img)
-        # cv2.imshow("res1", img)
+        # cv2.imwrite("t1ed.jpg",img)
+        # cv2.imshow("t1ed", img)
         # cv2.waitKey(0)
         # cv2.imencode('.jpg', img)[1].tofile(os.path.join(dst, id + ".jpg"))
         return img
@@ -239,12 +239,16 @@ if __name__=="__main__":
 
     model=YOLOV5_ONNX(onnx_path="yolov5s.onnx")
 
-    image=cv2.imread("bus.jpg")
-    image=image.astype(np.float32)
-    image = image[:, :, ::-1].transpose((2, 0, 1))  # HWC转CHW
-    image = np.expand_dims(image, axis=0)  # 扩展维度至[1,3,640,640]
+    # image=cv2.imread("bus.jpg")
+    # image=image.astype(np.float32)
+    # image = image[:, :, ::-1].transpose((2, 0, 1))  # HWC转CHW
+    # image = np.expand_dims(image, axis=0)  # 扩展维度至[1,3,640,640]
 
-    img2=model.infer(img_path=image)
-    cv2.imwrite("res2.jpg", img2)
-    print(image)
-    print(image.shape)
+    img2=model.infer(img_path="bus.jpg")
+    img3=img2[0,:,:,:]
+    img3 = img3[:, :, ::1].transpose((1, 2, 0))
+    print(img3.shape)
+    cv2.imshow("t1ed.jpg", img3)
+    cv2.waitKey(0)
+    cv2.imwrite("t1ed.jpg", img3)
+
